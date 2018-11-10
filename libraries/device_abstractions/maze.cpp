@@ -17,8 +17,8 @@ using namespace swconst;
 // Starting and ending position
 #define STARTROW 0
 #define STARTCOL 0
-#define ENDROW 7
-#define ENDCOL 7
+#define ENDROW 2
+#define ENDCOL 5
 
 // maps 0-3 direction to array offset, NORTH=0, WEST, SOUTH, EAST
 int offsetMap[4] = {16, -1, -16, 1};
