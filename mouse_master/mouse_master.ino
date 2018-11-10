@@ -89,12 +89,13 @@ void setup() {
 
     if (bluetooth) {
         backRgb->flashLED(LED_BLUE);
-        frontRgb->flashLED(LED_BLUE);
         // bluetoothInitialize blocks the program until you connect a BT device
         bluetoothInitialize();
         command[0] = '\0';
     }
 
+    // confirms that a BT device has been connected
+    // On Mac, just use Adafruit Bluefruit LE Connect from app store
     frontRgb->flashLED(LED_BLUE);
 
 }
