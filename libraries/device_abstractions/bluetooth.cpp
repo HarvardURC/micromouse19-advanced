@@ -21,8 +21,8 @@ bool bluetoothInitalized = false;
 void bluetoothInitialize() {
     bluetoothInitalized = true;
 
-	// Define pins
-	SPI.setSCK(pins::SCK);	// using alternate SCK pin
+    // Define pins
+    SPI.setSCK(pins::SCK);	// using alternate SCK pin
     SPI.begin();
 
     Serial.begin(115200);
