@@ -1,9 +1,9 @@
-/**********************************************************************************************
+/******************************************************************************
  * Arduino PID Library - Version 1.1.1
  * by Brett Beauregard <br3ttb@gmail.com> brettbeauregard.com
  *
  * This Library is licensed under a GPLv3 License
- **********************************************************************************************/
+ ******************************************************************************/
 
 #ifndef PID_v1_h
 #define PID_v1_h
@@ -12,7 +12,11 @@
 enum Mode {MANUAL=0,AUTOMATIC=1};
 enum Direction {DIRECT=0,REVERSE=1};
 
-template <typename T, const int MINLIMIT=0, const int MAXLIMIT=255, const unsigned long SAMPLETIME=100>
+template <typename T,
+          const int MINLIMIT=0,
+          const int MAXLIMIT=255,
+          const unsigned long SAMPLETIME=100>
+
 class PIDT
 {
     // prevent strange errors due to implicit conversions etc.
@@ -22,23 +26,25 @@ class PIDT
 
   public:
 
-    //commonly used functions **************************************************************************
+    //commonly used functions *************************************************
 
-    /*Constructor (...)*********************************************************
+    /*Constructor (...)********************************************************
      *    The parameters specified here are those for for which we can't set up
      *    reliable defaults, so we need to have the user set them.
-     ***************************************************************************/
+     **************************************************************************/
     PIDT(T* Input, T* Output, T* Setpoint,
-         T Kp, T Ki, T Kd, Direction ControllerDirection):
-            myOutput(Output), myInput(Input), mySetpoint(Setpoint), inAuto(false)
+         T Kp, T Ki, T Kd,
+         Direction ControllerDirection):
+            myOutput(Output), myInput(Input),
+            mySetpoint(Setpoint), inAuto(false)
     {
+        //  default output limit corresponds to the arduino pwm limits
+        SetOutputLimits(MINLIMIT, MAXLIMIT);   
 
-        SetOutputLimits(MINLIMIT, MAXLIMIT);   //default output limit corresponds to
-                                               //the arduino pwm limits
+		    mapOutput = false;
 
-		mapOutput = false;
-
-        SampleTime = SAMPLETIME;               //default Controller Sample Time is 0.1 seconds
+        // default Controller Sample Time is 0.1 seconds
+        SampleTime = SAMPLETIME;
 
         SetControllerDirection(ControllerDirection);
         SetTunings(Kp, Ki, Kd);
@@ -46,17 +52,18 @@ class PIDT
         lastTime = millis()-SampleTime;
         Initialize();
 
-		//turn on by default
-		SetMode(AUTOMATIC);
+    		//turn on by default
+    		SetMode(AUTOMATIC);
     }
 
 
-    /* Compute() **********************************************************************
-     *     This, as they say, is where the magic happens.  this function should be called
-     *   every time "void loop()" executes.  the function will decide for itself whether a new
-     *   pid Output needs to be computed.  returns true when the output is computed,
-     *   false when nothing has been done.
-     **********************************************************************************/
+    /* Compute() **************************************************************
+     *     This, as they say, is where the magic happens.  This function
+     *   should be called every time "void loop()" executes.  the function
+     *   will decide for itself whether a new pid Output needs to be computed.
+     *   Returns true when the output is computed, false when nothing has
+     *   been done.
+     **************************************************************************/
     bool Compute()
     {
        if(!inAuto) return false;
@@ -93,11 +100,11 @@ class PIDT
     }
 
 
-    /* SetTunings(...)*************************************************************
-     * This function allows the controller's dynamic performance to be adjusted.
-     * it's called automatically from the constructor, but tunings can also
-     * be adjusted on the fly during normal operation
-     ******************************************************************************/
+    /* SetTunings(...)*********************************************************
+     * This function allows the controller's dynamic performance to be
+     * adjusted. It's called automatically from the constructor, but tunings
+     * can also be adjusted on the fly during normal operation
+     **************************************************************************/
 
     void SetTunings(T Kp, T Ki, T Kd)
     {
@@ -105,22 +112,22 @@ class PIDT
 
        dispKp = Kp; dispKi = Ki; dispKd = Kd;
 
-       T SampleTimeInSec = ((T)SampleTime)/1000;
+       T SampleTimeInSec = ((T) SampleTime)/1000;
        kp = Kp;
        ki = Ki * SampleTimeInSec;
        kd = Kd / SampleTimeInSec;
 
-      if(controllerDirection ==REVERSE)
-       {
+      if(controllerDirection == REVERSE)
+      {
           kp = (0 - kp);
           ki = (0 - ki);
           kd = (0 - kd);
-       }
+      }
     }
 
-    /* SetSampleTime(...) *********************************************************
+    /* SetSampleTime(...) *****************************************************
      * sets the period, in Milliseconds, at which the calculation is performed
-     ******************************************************************************/
+     **************************************************************************/
 
     void SetSampleTime(int NewSampleTime)
     {
@@ -137,10 +144,10 @@ class PIDT
     /* SetOutputLimits(...)****************************************************
      *  This function will be used far more often than SetInputLimits. While
      *  the input to the controller will generally be in the 0-1023 range,
-	 *	the output will be a little different (0-255 by default). Maybe they'll
-     *  be doing a time window and will need 0-8000 or something.  or maybe they'll
-     *  want to clamp it from 0-125.  who knows.  at any rate, that can all be done
-     *  here.
+     *	the output will be a little different (0-255 by default). Maybe they'll
+     *  be doing a time window and will need 0-8000 or something.
+     *  Or maybe they'll want to clamp it from 0-125.  who knows.
+     *  At any rate, that can all be done here.
      **************************************************************************/
 
     void SetOutputLimits(T Min, T Max)

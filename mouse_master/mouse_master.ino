@@ -1,17 +1,18 @@
 #include <elapsedMillis.h>
 #include <EEPROM.h>
-#include "bluetooth.hh"
-#include "config.h"
-#include "io.hh"
-#include "maze.hh"
-#include "motors.hh"
-#include "sensors.hh"
-#include "software_config.hh"
+#include "bluetooth.hh"       // bluetoothInitialize, bleReady
+#include "config.h"           // ::pins,
+#include "io.hh"              // RGB_LED, Buzzer, Button
+#include "maze.hh"            // Position, Maze
+#include "motors.hh"          // Motor, Driver
+#include "sensors.hh"         // SensorArray
+#include "software_config.hh" // ::swconst
 #include <algorithm>
 
 #define BUFSIZE 20  // bluetooth buffer
 enum LED_Color { LED_RED, LED_GREEN, LED_BLUE };
 
+// There are several pin definitions in config.h: read it.
 using namespace pins;
 
 Maze* maze;
@@ -23,31 +24,43 @@ Button* frontButt;
 RGB_LED* backRgb;
 RGB_LED* frontRgb;
 
-int command_flag = 0;   // wait for a command or button press
-int swap_flag = 0;      // if true return to the start
-char command[BUFSIZE];  // buffer to hold bluetooth commands
-bool bluetooth = true;     // activate bluetooth (and command system)
-bool backupFlag = 0;    // allow backing up instead of turning 180 degrees
-bool abort_run = 0;
+int command_flag = 0;     // wait for a command or button press
+int swap_flag = 0;        // if true return to the start
+char command[BUFSIZE];    // buffer to hold bluetooth commands
+bool bluetooth = true;    // activate bluetooth (and command system)
+bool backupFlag = false;  // back up instead of turning 180 degrees
+// bool abort_run = 0;
 
-// * this line is supposed to be in a header file
+// this all should be placed into a header file
+void makeNextMove(Position next);
 bool commandIs(const char* token, const char* cmd, bool firstchar=false);
+void waitButton();
+void waitCommand();
+void celebrate();
 
 void setup() {
-    
+
     /* MOUSE HARDWARE INTITALIZATION */
+
+    // ?? need to power this pin to make the motors work ??
     pinMode(motorMode, OUTPUT);
     digitalWrite(motorMode, HIGH);
 
+    // set up serial interface at 9600 bits per second; give 500 ms init time
     Serial.begin(9600);
     delay(500);
 
-    backRgb = new RGB_LED(backLedR, backLedG, backLedB);
+    // values from ::pins, remember?
+    frontRgb = new RGB_LED(frontLedR, frontLedG, frontLedB);
+    backRgb  = new RGB_LED(backLedR, backLedG, backLedB);
     // * flash red to indicate that the mouse turned on
     backRgb->flashLED(LED_RED);
-    frontRgb = new RGB_LED(frontLedR, frontLedG, frontLedB);
 
-    maze = new Maze();
+    // * why are they named like this?
+    // values from ::pins
+    buzz = new Buzzer(buzzer);
+    backButt = new Button(backButton);
+    frontButt = new Button(frontButton);
 
     sensorArr = new SensorArray(
         // * tof: "time of flight"
@@ -72,32 +85,31 @@ void setup() {
         *frontRgb
     );
 
-    // * why are they named like this?
-    buzz = new Buzzer(buzzer);
-    backButt = new Button(backButton);
-    frontButt = new Button(frontButton);
-
-    /* FLOODFILL INITIALIZATION */
-
-    maze->initializeMaze();
-    maze->setBoundaryWalls();
-
-    backRgb->flashLED(LED_GREEN);
-
     driver->encoderOnlyFlag = true;
     driver->imuOn = false;
 
+    /* FLOODFILL INITIALIZATION */
+
+    maze = new Maze();
+    maze->initializeMaze();
+    maze->setBoundaryWalls();
+
+    // indicate that we reached up until the bluetooth setup
+    backRgb->flashLED(LED_GREEN);
+
     if (bluetooth) {
         backRgb->flashLED(LED_BLUE);
-        // bluetoothInitialize blocks the program until you connect a BT device
+        // bluetoothInitialize polls every 500ms until you connect a BT device
         bluetoothInitialize();
         command[0] = '\0';
     }
 
     // confirms that a BT device has been connected
     // On Mac, just use Adafruit Bluefruit LE Connect from app store
-    frontRgb->flashLED(LED_BLUE);
-
+    // * can't be wrapped in the above if-then block above for some reason
+    if (bluetooth) {
+      frontRgb->flashLED(LED_BLUE);
+    }
 }
 
 
@@ -148,25 +160,27 @@ void loop() {
     maze->updatePosition(next_move);
 
     // update walls
-    maze->addWalls(
-        driver->curr_angle,
-        driver->shortTofWallReadings[LEFTDIAG],
-        driver->shortTofWallReadings[LEFTFRONT],
-        driver->shortTofWallReadings[RIGHTDIAG]);
+    maze->addWalls(driver->curr_angle,
+                   driver->shortTofWallReadings[LEFTDIAG],
+                   driver->shortTofWallReadings[LEFTFRONT],
+                   driver->shortTofWallReadings[RIGHTDIAG]);
 
     // only print the walls on the speedrun
     // * adham says maybe only supposed to happen on the mapping run
     if (maze->counter == 0) {
         debug_print("Walls:");
         for (int i = 0; i < 4; i++) {
-            if (i == RIGHTFRONT) { continue; } // ignore right front tof
+            // ignore right front tof
+            // * but why??
+            if (i == RIGHTFRONT) { continue; }
             debug_print(driver->shortTofWallReadings[i]);
             debug_print(" ");
         }
         debug_println(" ");
     }
-    driver->clearWallData();
 
+
+    driver->clearWallData();
     maze->printWallsCell(next_move);
 }
 
@@ -200,7 +214,7 @@ void makeNextMove(Position next) {
  * Allows for a variety of functionality, check README for details.
  */
 void waitButton() {
-    // time interval for button's commands
+    // time interval for button's commands in milliseconds
     const long ledtime = 2000;
 
     for (;;) {
@@ -315,6 +329,15 @@ void waitCommand() {
     PidController* pid = &nullPid;
     const int notifyTime = 8000;
     elapsedMillis timer = 0;
+    char* cmds = "reset, "
+                 "fullreset, "
+                 "go, "
+                 "start, "
+                 "celebrate, "
+                 "setgoal, "
+                 "tune, "
+                 "quit";
+
 
     for (;;) {
 
@@ -432,13 +455,10 @@ void waitCommand() {
                 }
             }
             else if (commandIs(token, "help")) {
-                debug_println("Possible commands: "
-                    "[go, start, reset, fullreset, w, a, d, tune,"
-                    " celebrate, quit, setgoal]");
+                debug_println("Possible commands: [" cmds "]");
             }
             else {
-                debug_println("Invalid command. "
-                              "See the README for valid commands.");
+                debug_println("Invalid command.");
             }
             timer = 0;
         }
