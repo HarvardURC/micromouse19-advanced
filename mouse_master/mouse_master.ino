@@ -23,12 +23,14 @@ Button* backButt;
 Button* frontButt;
 RGB_LED* backRgb;
 RGB_LED* frontRgb;
+// initialize cellSize as swconst's cellSize (we might want to debug it later)
+float cellSize = swconst::cellSize;
 
 int command_flag = 0;     // wait for a command or button press
 int swap_flag = 0;        // if true return to the start
 char command[BUFSIZE];    // buffer to hold bluetooth commands
 bool bluetooth = true;    // activate bluetooth (and command system)
-bool backupFlag = false;  // back up instead of turning 180 degrees
+bool backupFlag = true;  // back up instead of turning 180 degrees
 // bool abort_run = 0;
 
 // this all should be placed into a header file
@@ -329,14 +331,6 @@ void waitCommand() {
     PidController* pid = &nullPid;
     const int notifyTime = 8000;
     elapsedMillis timer = 0;
-    char* cmds = "reset, "
-                 "fullreset, "
-                 "go, "
-                 "start, "
-                 "celebrate, "
-                 "setgoal, "
-                 "tune, "
-                 "quit";
 
 
     for (;;) {
@@ -355,8 +349,41 @@ void waitCommand() {
 
             /* definitions of command behaviors */
 
+
+
+            if (commandIs(token, "backup_on")) {
+                backupFlag = true;
+            }
+            else if (commandIs(token, "backup_off")) {
+                backupFlag = false;
+            }
+            else if (commandIs(token, "backup_status")) {
+              if (backupFlag)
+                debug_println("backupFlag is on");
+              else
+                debug_println("backupFlag is off");
+            }
+            else if (commandIs(token, "w")) {
+              driver->forward(cellSize);
+            }
+            else if (commandIs(token, "a")) {
+	                driver->turnLeft(90);
+	          }
+            else if (commandIs(token, "d")) {
+	                driver->turnRight(90);
+	          }
+            else if (commandIs(token, "set_cell_size")) {
+                // get the next "argument" in the line as a number
+                int size = atoi(strtok(NULL, " "));
+                cellSize = size;
+                debug_print("cellSize is now: ");
+                debug_println(size);
+            }
+
+
             // reset maze
-            if (commandIs(token, "reset")) {
+
+            else if (commandIs(token, "reset")) {
                 driver->resetState();
                 debug_println("Robot state reset. Ready for next run.");
             }
@@ -455,7 +482,19 @@ void waitCommand() {
                 }
             }
             else if (commandIs(token, "help")) {
-                debug_println("Possible commands: [" cmds "]");
+                debug_println("Possible commands: ["
+                              "reset, "
+                              "fullreset, "
+                              "go, "
+                              "start, "
+                              "celebrate, "
+                              "setgoal, "
+                              "tune, "
+                               "quit, "
+                               "backup_on, "
+                               "backup_off, "
+                               "backup_status"
+                               "]");
             }
             else {
                 debug_println("Invalid command.");
