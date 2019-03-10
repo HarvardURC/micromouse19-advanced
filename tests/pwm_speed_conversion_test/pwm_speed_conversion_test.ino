@@ -4,8 +4,8 @@
 */
 
 #include <vector>
-#include <config.h>
 #include <Encoder.h>
+#include "pins.hh"
 
 #define FORWARD 1
 #define BACKWARD 0

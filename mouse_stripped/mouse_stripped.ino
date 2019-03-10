@@ -8,7 +8,7 @@
 
 #include <elapsedMillis.h>
 #include <EEPROM.h>
-#include "config.h"
+#include "pins.hh"
 #include "io.hh"
 #include "maze.hh"
 #include "motors.hh"

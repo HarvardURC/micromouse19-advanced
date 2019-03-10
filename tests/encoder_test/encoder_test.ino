@@ -5,7 +5,7 @@
 
 #include <VL6180X.h>
 #include <i2c_t3.h>
-#include <config.h>
+#include "pins.hh"
 #include <Encoder.h>
 
 Encoder encoderLeft(pins::encoderL1, pins::encoderL2);

@@ -1,4 +1,4 @@
-#include "config.h"
+#include "pins.hh"
 #include "bluetooth.hh"
 
 #define BUFSIZE                        	160   	// Size of the read buffer for incoming data

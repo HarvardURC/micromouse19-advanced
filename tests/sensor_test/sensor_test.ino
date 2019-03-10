@@ -4,7 +4,7 @@
   by the ToF sensors.
 */
 
-#include "config.h"
+#include "pins.hh"
 #include "sensors.hh"
 
 using namespace pins;
