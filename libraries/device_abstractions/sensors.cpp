@@ -1,4 +1,4 @@
-#include "config.h"
+#include "pins.hh"
 #include "sensors.hh"
 
 std::vector<int> sensor_pins = {pins::tofDiagL, pins::tofFrontL, pins::tofFrontR, pins::tofDiagR};
