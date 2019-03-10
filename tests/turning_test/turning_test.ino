@@ -8,7 +8,7 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 #include <vector>
-#include <config.h>
+#include "pins.hh"
 
 #define FORWARD 1
 #define BACKWARD 0
@@ -101,5 +101,3 @@ void move(std::vector<motor> motors, int direction) {
 
 void loop() {
 }
-
-
