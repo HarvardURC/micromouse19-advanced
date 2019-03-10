@@ -4,7 +4,7 @@
 */
 
 #include <vector>
-#include <config.h>
+#include "pins.hh"
 
 #define FORWARD 1
 #define BACKWARD 0
