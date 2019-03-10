@@ -1,4 +1,4 @@
-#include "config.h"
+#include "pins.hh"
 #include "bluetooth.hh"
 #include "helpers.hh"
 #include "io.hh"
