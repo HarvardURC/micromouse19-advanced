@@ -216,17 +216,17 @@ void Driver::computePids(float init_xpos, float init_ypos,
 
 
 void Driver::debugPidMovement(float angle_travelled) {
-    debug_printvar(_pid_x.input);
-    debug_printvar(_pid_x.output);
-    debug_printvar(_pid_x.setpoint);
-    debug_printvar(curr_xpos);
-    debug_println(" ");
-
-    debug_printvar(_pid_y.input);
-    debug_printvar(_pid_y.output);
-    debug_printvar(_pid_y.setpoint);
-    debug_printvar(curr_ypos);
-    debug_println(" ");
+    // debug_printvar(_pid_x.input);
+    // debug_printvar(_pid_x.output);
+    // debug_printvar(_pid_x.setpoint);
+    // debug_printvar(curr_xpos);
+    // debug_println(" ");
+    //
+    // debug_printvar(_pid_y.input);
+    // debug_printvar(_pid_y.output);
+    // debug_printvar(_pid_y.setpoint);
+    // debug_printvar(curr_ypos);
+    // debug_println(" ");
 
     this->debugAngle(angle_travelled);
 
