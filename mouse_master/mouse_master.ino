@@ -1,7 +1,7 @@
 #include <elapsedMillis.h>
 #include <EEPROM.h>
 #include "bluetooth.hh"       // bluetoothInitialize, bleReady
-#include "config.h"           // ::pins,
+#include "pins.hh"            // ::pins,
 #include "io.hh"              // RGB_LED, Buzzer, Button
 #include "maze.hh"            // Position, Maze
 #include "motors.hh"          // Motor, Driver
