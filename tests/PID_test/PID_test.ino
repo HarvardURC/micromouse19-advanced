@@ -6,7 +6,7 @@
 
 #include <PID_v1.h>
 #include <Encoder.h>
-#include "config.h"
+#include "pins.hh"
 
 using namespace pins;
 
