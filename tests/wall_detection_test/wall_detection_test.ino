@@ -1,5 +1,5 @@
 #include <vector>
-#include "config.h"
+#include "pins.hh"
 #include "sensors.hh"
 #include "io.hh"
 
