@@ -7,7 +7,7 @@
 #include <VL6180X.h>
 #include <i2c_t3.h>
 #include <PID_v1.h>
-#include "config.h"
+#include "pins.hh"
 
 VL6180X* tofFrontS = new VL6180X;
 

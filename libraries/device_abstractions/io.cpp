@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "config.h"
+#include "pins.hh"
 #include "io.hh"
 
 int rgbPins[3];

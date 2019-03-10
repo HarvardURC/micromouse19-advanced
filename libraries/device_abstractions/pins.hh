@@ -1,10 +1,10 @@
 /**
- * config.h
- * Contains hardware constants for the 2017-2018 experienced-team robot.
+ * pins.hh
+ * Maps component names to pins.
  */
 
-#ifndef config_h
-#define config_h
+#ifndef pins_hh
+#define pins_hh
 
 namespace pins
 {

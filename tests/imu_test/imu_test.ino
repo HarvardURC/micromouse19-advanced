@@ -7,7 +7,7 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
-#include <config.h>
+#include "pins.hh"
   
 Adafruit_BNO055 bno = Adafruit_BNO055(55);//pins::imuRST);
  
