@@ -3,7 +3,7 @@ Test for checking if deploying to Teensy board is working.
 Should cause a blinking orange LED on the corner of the Teensy board.
 */
 
-#include "config.h"
+#include "pins.hh"
 
 void setup() {
     pinMode(pins::cpuLed, OUTPUT);
